@@ -20,6 +20,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+        args: >
+          -Dsonar.organization=nodeGoat
+          -Dsonar.projectKey=nodeGoat
+          -Dsonar.verbose=true
 
       - name: OWASP ZAP
         uses: zaproxy/action-baseline@v0.8.0
