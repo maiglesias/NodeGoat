@@ -29,3 +29,6 @@ jobs:
               echo "Quality Gate failed. Stopping the pipeline."
               exit 1
           fi
+
+          
+          curl -s -u "a121f9c444947687c9b2afbc49c9974a1220ffe2:" "https://sonarcloud.io/api/ce/activity" | jq -r '.[0].analysisId'
