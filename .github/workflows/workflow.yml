@@ -22,17 +22,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
       - name: Check SonarCloud Quality Gate
         run: |
-          SONAR_TOKEN=${{ secrets.SONARCLOUD_TOKEN }}
-          TASK_ID=$(curl -s -u "${SONAR_TOKEN}:" "https://sonarcloud.io/api/ce/activity" | jq -r '.tasks[0].analysisId')
+          QG_STATUS=$(curl https://sonarcloud.io/api/qualitygates/project_status\?projectKey\=maiglesias_NodeGoat | jq '.projectStatus.status')
 
-          if [ -z "${TASK_ID}" ]; then
-              echo "Error al obtener el ID de la tarea. Deteniendo el pipeline."
-              exit 1
-          fi
-
-          QG_STATUS=$(curl -s -u "${SONAR_TOKEN}:" "https://sonarcloud.io/api/qualitygates/project_status?analysisId=${TASK_ID}" | jq -r '.projectStatus.status')
-
-          if [ "${QG_STATUS}" = "ERROR" ]; then
+          if [ ${QG_STATUS} = "ERROR" ]; then
               echo "Quality Gate failed. Stopping the pipeline."
               exit 1
           fi
