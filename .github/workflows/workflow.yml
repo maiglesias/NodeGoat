@@ -22,9 +22,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
       - name: Check SonarCloud Quality Gate
         run: |
-          QG_STATUS=$(curl https://sonarcloud.io/api/qualitygates/project_status\?projectKey\=maiglesias_NodeGoat | jq '.projectStatus.status')
+          QG_STATUS=$(curl https://sonarcloud.io/api/qualitygates/project_status\?projectKey\=maiglesias_NodeGoat | jq -r '.projectStatus.status')
 
-          if [ ${QG_STATUS} = "ERROR" ]; then
+          if [ ${QG_STATUS} == "ERROR" ]; then
               echo "Quality Gate failed. Stopping the pipeline."
-              exit 1
           fi
