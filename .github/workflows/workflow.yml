@@ -26,4 +26,5 @@ jobs:
 
           if [ ${QG_STATUS} == "ERROR" ]; then
               echo "Quality Gate failed. Stopping the pipeline."
+              exit 1
           fi
