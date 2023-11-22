@@ -1,0 +1,1 @@
+{"projectStatus":{"status":"ERROR","conditions":[{"status":"ERROR","metricKey":"bugs","comparator":"GT","errorThreshold":"10","actualValue":"17"}],"periods":[{"index":1,"mode":"previous_version","date":"2023-11-17T22:10:38+0100"}],"ignoredConditions":false}}
