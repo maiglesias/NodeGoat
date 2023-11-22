@@ -2,10 +2,8 @@ name: Security Checks
 on: [push, pull_request]
 
 jobs:
-
   zap-test:
     name: Zap Security Tests
-    needs: build
     runs-on: ubuntu-latest
     
     steps:
@@ -28,7 +26,6 @@ jobs:
 
   sonarcloud-test:
     name: Sonarcloud Security Tests
-    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +38,7 @@ jobs:
         run: docker-compose up --detach
       - name: Checkout code
         uses: actions/checkout@v2
-        
+
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
