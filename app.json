@@ -15,7 +15,7 @@
   "env": {
     "MONGODB_URI": {
       "description": "Connection string for MongoDB database to use. Must be publicly accessible.",
-      "value": "mongodb+srv://miglesias:it2S7ggclA1Fs0K3@nodegoat.n6swjau.mongodb.net/?retryWrites=true&w=majority"
+      "value": ""
     },
     "NODE_ENV": {
       "description": "NODE_ENV for build and runtime. Must be in lowercase for Heroku build process.",
