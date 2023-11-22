@@ -2,8 +2,33 @@ name: Security Checks
 on: [push, pull_request]
 
 jobs:
-  build:
-    name: Build
+
+  zap-test:
+    name: Zap Security Tests
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: Building Docker Node-Goat Image
+        run: docker-compose build
+      - name: Launching the app
+        run: docker-compose up --detach
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.8.0
+        with:
+          target: 'http://localhost:4000'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+  sonarcloud-test:
+    name: Sonarcloud Security Tests
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -16,30 +41,13 @@ jobs:
         run: docker-compose up --detach
       - name: Checkout code
         uses: actions/checkout@v2
-
-  zap-test:
-    name: Zap Security Tests
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: ZAP Scan
-        uses: zaproxy/action-full-scan@v0.8.0
-        with:
-          target: 'http://localhost:4000'
-          rules_file_name: '.zap/rules.tsv'
-
-  sonarcloud-test:
-    name: Sonarcloud Security Tests
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
+        
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+
       - name: Check SonarCloud Quality Gate
         run: |
           QG_STATUS=$(curl https://sonarcloud.io/api/qualitygates/project_status\?projectKey\=maiglesias_NodeGoat | jq -r '.projectStatus.status')
