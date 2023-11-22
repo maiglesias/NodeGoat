@@ -14,6 +14,23 @@ jobs:
         run: docker-compose build
       - name: Launching the app
         run: docker-compose up --detach
+           - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Start ZAP container
+        run: docker run -v $(pwd)/zap:/zap/wrk/:rw -t owasp/zap2docker-weekly zap.sh -daemon -config api.disablekey=true
+
+      - name: Run ZAP scan
+        run: docker run --network host -v $(pwd)/zap:/zap/wrk/:rw owasp/zap2docker-weekly zap-baseline.py -t http://localhost:4000 -g gen.conf -r report.html
+
+      - name: Stop ZAP container
+        run: docker run --network host -t owasp/zap2docker-weekly zap.sh -s shutdown
+
+      - name: Upload ZAP report
+        uses: actions/upload-artifact@v2
+        with:
+          name: zap-report
+          path: zap/wrk/
 
   sonarcloud-test:
     name: SONARCLOUD CHECK
@@ -25,6 +42,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Check SonarCloud Quality Gate
         run: |
           QG_STATUS=$(curl https://sonarcloud.io/api/qualitygates/project_status\?projectKey\=maiglesias_NodeGoat | jq -r '.projectStatus.status')
@@ -33,25 +52,4 @@ jobs:
               echo "Quality Gate failed. Stopping the pipeline."
               exit 1
           fi
-  zap-scan:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Start ZAP container
-        run: docker run -v $(pwd)/zap:/zap/wrk/:rw -t owasp/zap2docker-weekly zap.sh -daemon -config api.disablekey=true
-
-      - name: Run ZAP scan
-        run: docker run --network host -v $(pwd)/zap:/zap/wrk/:rw owasp/zap2docker-weekly zap-baseline.py -t http://web:4000 -g gen.conf -r report.html
-
-      - name: Stop ZAP container
-        run: docker run --network host -t owasp/zap2docker-weekly zap.sh -s shutdown
-
-      - name: Upload ZAP report
-        uses: actions/upload-artifact@v2
-        with:
-          name: zap-report
-          path: zap/wrk/
+ 
