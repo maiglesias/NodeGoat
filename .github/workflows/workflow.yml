@@ -3,7 +3,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    name: ZAP CHECK
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
@@ -16,24 +16,25 @@ jobs:
         run: docker-compose up --detach
       - name: Checkout code
         uses: actions/checkout@v2
+
+  zap-test:
+    name: Zap Security Tests
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
       - name: ZAP Scan
         uses: zaproxy/action-full-scan@v0.8.0
         with:
           target: 'http://localhost:4000'
+          rules_file_name: '.zap/rules.tsv'
 
   sonarcloud-test:
-    name: SONARCLOUD CHECK
+    name: Sonarcloud Security Tests
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: master
-      - name: Building Docker Node-Goat Image
-        run: docker-compose build
-      - name: Launching the app
-        run: docker-compose up --detach
-
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
