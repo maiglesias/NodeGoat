@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Start ZAP container
-        run: docker run -v $(pwd)/zap:/zap/wrk/:rw -t owasp/zap2docker-weekly zap.sh -daemon -config api.disablekey=true
+        run: docker run -v $(pwd)/zap:/zap/wrk/:rw -t owasp/zap2docker-weekly zap.sh -daemon -config api.disablekey=true --detach
 
       - name: Run ZAP scan
         run: docker run --network host -v $(pwd)/zap:/zap/wrk/:rw owasp/zap2docker-weekly zap-baseline.py -t http://localhost:4000 -g gen.conf -r report.html
@@ -37,17 +37,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: Building Docker Node-Goat Image
+        run: docker-compose build
+      - name: Launching the app
+        run: docker-compose up --detach
+
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
-      - name: Checkout code
-        uses: actions/checkout@v2
       - name: Check SonarCloud Quality Gate
         run: |
           QG_STATUS=$(curl https://sonarcloud.io/api/qualitygates/project_status\?projectKey\=maiglesias_NodeGoat | jq -r '.projectStatus.status')
-
           if [ ${QG_STATUS} == "ERROR" ]; then
               echo "Quality Gate failed. Stopping the pipeline."
               exit 1
