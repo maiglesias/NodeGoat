@@ -16,21 +16,10 @@ jobs:
         run: docker-compose up --detach
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Start ZAP container
-        run: docker run -v $(pwd)/zap:/zap/wrk/:rw -t owasp/zap2docker-weekly zap.sh -daemon -config api.disablekey=true --detach
-
-      - name: Run ZAP scan
-        run: docker run --network host -v $(pwd)/zap:/zap/wrk/:rw owasp/zap2docker-weekly zap-baseline.py -t http://localhost:4000 -g gen.conf -r report.html
-
-      - name: Stop ZAP container
-        run: docker run --network host -t owasp/zap2docker-weekly zap.sh -s shutdown
-
-      - name: Upload ZAP report
-        uses: actions/upload-artifact@v2
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.8.0
         with:
-          name: zap-report
-          path: zap/wrk/
+          target: 'http://localhost:4000'
 
   sonarcloud-test:
     name: SONARCLOUD CHECK
