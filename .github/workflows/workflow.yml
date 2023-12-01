@@ -2,8 +2,7 @@ name: Security Checks
 on: [push, pull_request]
 
 jobs:
-
-  sonarcloud-test:
+  build:
     name: Sonarcloud Security Tests
     runs-on: ubuntu-latest
     steps:
@@ -14,6 +13,12 @@ jobs:
         run: docker-compose build
       - name: Launching the app
         run: docker-compose up --detach
+    
+  sonarcloud-test:
+    name: Sonarcloud Security Tests
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
