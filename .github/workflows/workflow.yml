@@ -2,21 +2,8 @@ name: Security Checks
 on: [push, pull_request]
 
 jobs:
-  build:
-    name: Sonarcloud Security Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: master
-      - name: Building Docker Node-Goat Image
-        run: docker-compose build
-      - name: Launching the app
-        run: docker-compose up --detach
-    
   sonarcloud-test:
     name: Sonarcloud Security Tests
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -39,7 +26,6 @@ jobs:
   snyk-test:
     name: Snyk Security Test
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -60,12 +46,14 @@ jobs:
 
   zap-test:
     name: Zap Security Tests
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
+      - name: Building Docker Node-Goat Image
+        run: docker-compose build
+      - name: Launching the app
+        run: docker-compose up --detach
       - name: ZAP Scan
         uses: zaproxy/action-full-scan@v0.8.0
         with:
