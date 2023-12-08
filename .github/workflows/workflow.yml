@@ -1,8 +1,6 @@
 name: Security Checks
-on:
-  pull_request:
-    branches:
-      - master
+on: [push, pull_request]
+
 jobs:
   sonarcloud-test:
     name: Sonarcloud Security Tests
