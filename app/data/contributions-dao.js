@@ -34,6 +34,8 @@ function ContributionsDAO(db) {
             err => {
                 if (!err) {
                     console.log("Updated contributions");
+                    console.log("Updated contributions");
+                    console.log("Updated contributions");
                     // add user details
                     userDAO.getUserById(parsedUserId, (err, user) => {
 
@@ -69,6 +71,12 @@ function ContributionsDAO(db) {
 
                 // add user details
                 userDAO.getUserById(userId, (err, user) => {
+
+                    if (err) return callback(err, null);
+                    contributions.userName = user.userName;
+                    contributions.firstName = user.firstName;
+                    contributions.lastName = user.lastName;
+                    contributions.userId = userId;
 
                     if (err) return callback(err, null);
                     contributions.userName = user.userName;
